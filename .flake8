@@ -1,0 +1,3 @@
+[flake8]
+# Don't forget to sync this with isort, black settings in pyproject.toml
+max-line-length = 80

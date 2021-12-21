@@ -1,0 +1,57 @@
+repos:
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness install --check
+        id: install-check
+        language: system
+        name: Virtual environment installed dependencies are current
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness formatting
+        id: formatting
+        language: system
+        name: Black, isort formatting passes
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness static-analysis --analysis  flake8
+        id: flake8
+        language: system
+        name: Build harness flake8 analysis passes
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness static-analysis --analysis mypy
+        id: mypy
+        language: system
+        name: Build harness mypy analysis passes
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness static-analysis --analysis pydocstyle
+        id: static-analysis
+        language: system
+        name: Build harness pydocstyle analysis passes
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - entry: .venv/bin/build-harness unit-test
+        id: unit-test
+        language: system
+        name: Unit tests run clean
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      # Don't forget to update the coverage threshold in .gitlab-ci.yml
+      - entry: .venv/bin/build-harness unit-test --check 90
+        id: unit-test-check
+        language: system
+        name: Coverage analysis passes
+        pass_filenames: false

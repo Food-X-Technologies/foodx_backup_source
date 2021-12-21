@@ -1,0 +1,61 @@
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = ["flit_core >=2,<3"]
+
+
+[tool.flit.metadata]
+author = "My Name"
+author-email = "someone@somewhere.com"
+description-file = "README.rst"
+home-page = "https://gitlab.com/my_project/"
+module = "start"
+
+
+[tool.flit.metadata.requires-extra]
+dev = [
+    "build_harness == 0.1.1",
+"pre_commit == 2.13.0",
+]
+doc = [
+    "sphinx == 4.0.2",
+    "sphinx_rtd_theme == 0.5.2",
+]
+test = [
+    "pytest == 6.2.4",
+    "pytest-cov == 2.12.1",
+    "pytest-mock == 3.6.1",
+]
+
+
+[tool.black]
+# Don't forget to sync this with isort, .flake8
+line-length = 80
+
+
+[tool.isort]
+# Don't forget to sync this with black, .flake8
+line_length = 80
+profile = "black"
+
+
+[tool.coverage.run]
+# branch and concurrency settings seem to be needed due to this problem:
+# pytest-cov internal error "Can't combine line data with arc data"
+# https://github.com/pytest-dev/pytest-cov/issues/243
+branch = true
+concurrency = ["multiprocessing"]
+omit = ["start/.venv/*"]
+source = ["start"]
+
+
+[tool.coverage.report]
+exclude_lines = [
+    "except ImportError",
+    "raise NotImplementedError",
+    "pass",
+    "ABCmeta",
+    "abstractmethod",
+    "warnings.warn",
+]
+precision = 0
+show_missing = true
