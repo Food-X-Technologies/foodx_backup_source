@@ -9,7 +9,7 @@ import pathlib
 
 import pytest
 
-from start._version import DEFAULT_RELEASE_ID, acquire_version
+from foodx_backup_source._version import DEFAULT_RELEASE_ID, acquire_version
 
 
 def test_clean(mocker):
