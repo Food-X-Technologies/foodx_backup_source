@@ -1,0 +1,286 @@
+name: Python build harness
+on:
+  - push
+
+env:
+  FLIT_ROOT_INSTALL: 1
+
+  PYPI_API_USER: __token__
+
+  VENV_DIR: /venv
+  VENV_BIN: /venv/bin
+
+  CALL_TARGET: /venv/bin/build-harness
+
+  IMAGE_PATH: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - run: |
+          docker build \
+            -t ${{ env.IMAGE_PATH }} \
+            docker/pipeline
+          docker push ${{ env.IMAGE_PATH }}
+
+
+  formatting-check:
+    env:
+      TARGET: formatting --check
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            ${TARGET}
+
+
+  flake8-check:
+    env:
+      TARGET: static-analysis --analysis flake8
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "system Python version: "$(python3 --version)
+          echo "venv Python version: "$(${{ env.VENV_BIN }}/python3 --version)
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            ${TARGET}
+
+
+  mypy-check:
+    env:
+      TARGET: static-analysis --analysis mypy
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            ${TARGET}
+
+
+  pydocstyle-check:
+    env:
+      TARGET: static-analysis --analysis pydocstyle
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            ${TARGET}
+
+
+  unit-tests:
+    env:
+      # have to avoid the new manual directory in CI pipeline
+      TARGET: unit-test --test-dir tests/ci
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            ${TARGET}
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: unittests-log
+          path: build_harness.log
+
+
+  unit-tests-coverage-report:
+    env:
+      # Don't forget to update the coverage threshold in .pre-commit-config.yaml
+      # have to avoid the new manual directory in CI pipeline
+      TARGET: unit-test --test-dir tests/ci --coverage-html
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ${{ env.CALL_TARGET }} ${TARGET}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report-artifacts-${{ matrix.python-version }}
+          path: dist/coverage_report
+
+
+  unit-tests-coverage-check:
+    env:
+      # Don't forget to update the coverage threshold in .pre-commit-config.yaml
+      # Setting CI threshold to 80% because GHA calculates a different coverage result than locally (92%);
+      # the problem seems to be with several files, including foodx_devops_tools/pull/puffignore.py (32% coverage in
+      # GHA, 100% coverage locally).
+      # have to avoid the new manual directory in CI pipeline
+      TARGET: unit-test --test-dir tests/ci --check 80
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ${{ env.CALL_TARGET }} ${TARGET}
+
+
+  build-packages:
+    needs:
+      - build-docker-image
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # need all tags and branch info for release-flow utility.
+          # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          fetch-depth: 0
+      - name: Build package
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          export THIS_VERSION=$(${{ env.VENV_BIN }}/release-flow --default-branch main)
+          echo ${THIS_VERSION}
+          ${{ env.CALL_TARGET }} \
+            --log-enable-console \
+            --log-level debug \
+            package \
+              --release-id ${THIS_VERSION}
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: build-log
+          path: build_harness.log
+      - uses: actions/upload-artifact@v2
+        with:
+          name: distribution-package-artifacts
+          path: dist
+
+
+  install-check:
+    needs:
+      - build-packages
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: distribution-package-artifacts
+          path: dist
+      - run: |
+          python3 -m venv venv
+          ls dist
+          venv/bin/pip install dist/*.whl
+
+
+  publish-packages:
+    concurrency: publish
+    env:
+      PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+    needs:
+      - build-packages
+      - build-docker-image
+      # don't "need" anything from install-check, but definitely don't want to publish if it fails
+      - install-check
+
+    container:
+      image: "foodxtech/foodx-devops-tools-pipeline:${{ github.sha }}"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v2
+        with:
+          name: distribution-package-artifacts
+          path: dist
+      - if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+        name: Publish package
+        # something seems to be broken with `build-harness publish` so use twine directly instead, for now
+        run: |
+          git --version
+
+          ${{ env.VENV_BIN }}/twine upload \
+            --disable-progress-bar \
+            --non-interactive \
+            --password ${PYPI_TOKEN} \
+            --username ${{ env.PYPI_API_USER }} \
+            --verbose \
+            dist/*
+      - if: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') }}
+        name: Publish package dryrun
+        run: |
+          git --version
+
+          echo ${PYPI_TOKEN} |
+          ${CALL_TARGET} \
+            --log-enable-console \
+            --log-level debug \
+            publish \
+              --user ${{ env.PYPI_API_USER }} \
+              --password-file - \
+              --publish dryrun
+      - if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: publish-log
+          path: build_harness.log
