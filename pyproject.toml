@@ -31,7 +31,9 @@ doc = [
     "sphinx_rtd_theme ~= 0.5.2",
 ]
 test = [
+    "asynctest >=0.13.0, <1.0",
     "pytest ~= 6.2.4",
+    "pytest-asyncio >=0.15.1, <1.0",
     "pytest-cov ~= 2.12.1",
     "pytest-mock ~= 3.6.1",
 ]

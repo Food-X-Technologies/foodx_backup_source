@@ -1,0 +1,12 @@
+---
+context:
+  dependencies:
+    r2:
+      backup:
+        repo_url: "https://some.where/this_repo"
+        branch_name: main
+      docker:
+        image_name: this-image
+        tag_prefix: p-
+      release:
+        ref: HEAD

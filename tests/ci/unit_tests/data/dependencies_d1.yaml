@@ -1,0 +1,12 @@
+---
+context:
+  dependencies:
+    r1:
+      backup:
+        repo_url: "https://this.host/path"
+        branch_name: master
+      docker:
+        image_name: r1-image
+        tag_prefix: pp-
+      release:
+        ref: "3.1.4"

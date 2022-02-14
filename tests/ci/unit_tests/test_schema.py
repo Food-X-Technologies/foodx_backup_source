@@ -11,15 +11,17 @@ import ruamel.yaml
 
 from foodx_backup_source.schema import DependencyFile
 
+
 @pytest.fixture()
 def load_yaml_content():
-    def _load(content_text:str)->dict:
-        yaml=ruamel.yaml.YAML(typ="safe")
+    def _load(content_text: str) -> dict:
+        yaml = ruamel.yaml.YAML(typ="safe")
         content = yaml.load(content_text)
 
         return content
 
     return _load
+
 
 def test_clean(load_yaml_content):
     content_text = """
@@ -39,6 +41,7 @@ context:
     data = DependencyFile.parse_obj(load_yaml_content(content_text))
 
     assert data.context.dependencies["r1"].backup.branch_name == "master"
+
 
 def test_bad_url(load_yaml_content):
     content_text = """
