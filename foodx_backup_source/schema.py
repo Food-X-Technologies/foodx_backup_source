@@ -27,14 +27,13 @@ class DockerImageDefinition(pydantic.BaseModel):
 
 
 class ReleaseReference(pydantic.BaseModel):
-    """Define git reference to be used for docker image tags and repository
-    backup."""
+    """Define git reference to be used for repository backup."""
 
     ref: str
 
 
 class ApplicationDependency(pydantic.BaseModel):
-    """Definition of git, docker dependencies of an application"""
+    """Definition of git, docker dependencies of an application."""
 
     backup: RepoBackupDefinition
     docker: DockerImageDefinition
@@ -57,5 +56,7 @@ class DependencyFile(pydantic.BaseModel):
 
 
 class ApplicationDefinition(pydantic.BaseModel):
+    """Application backup definition."""
+
     name: str
     configuration: ApplicationDependency

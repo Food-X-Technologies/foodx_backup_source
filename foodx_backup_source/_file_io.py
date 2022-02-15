@@ -12,7 +12,7 @@ import pathlib
 import typing
 
 import aiofiles
-import deepmerge
+import deepmerge  # type: ignore
 import ruamel.yaml
 
 from .schema import ApplicationDefinition, DependencyFile
@@ -37,7 +37,7 @@ async def _load_application_dependencies(file: pathlib.Path) -> dict:
 
 
 def _merge_file_content(results: typing.List[dict]) -> DependencyFile:
-    merged = dict()
+    merged: dict = dict()
     for x in results:
         merged = deepmerge.always_merger.merge(merged, x)
     data: DependencyFile = DependencyFile.parse_obj(merged)

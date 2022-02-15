@@ -12,6 +12,17 @@ import pathlib
 
 
 def create_file_hash(file_path: pathlib.Path) -> str:
+    """
+    Create a hash of a file.
+
+    Replicates function of ``sha365sum`` linux command.
+
+    Args:
+        file_path: Path of file to hash.
+
+    Returns:
+        Hex digest of file SHA.
+    """
     this_hash = hashlib.sha256()
     file_size = file_path.stat().st_size
     with file_path.open(mode="rb") as f:

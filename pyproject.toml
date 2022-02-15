@@ -25,6 +25,7 @@ requires = [
 dev = [
     "build_harness ~= 0.2.1",
     "pre_commit ~= 2.13.0",
+    "types-aiofiles",
 ]
 doc = [
     "sphinx ~= 4.0.2",
