@@ -58,4 +58,4 @@ class DependencyFile(pydantic.BaseModel):
 
 class ApplicationDefinition(pydantic.BaseModel):
     name: str
-    definition: ApplicationDependency
+    configuration: ApplicationDependency

@@ -94,5 +94,5 @@ class TestLoadBackupDefinitions:
 
         assert {"r1", "r2"} & {x.name for x in result}
         assert {"main", "master"} & {
-            x.definition.backup.branch_name for x in result
+            x.configuration.backup.branch_name for x in result
         }

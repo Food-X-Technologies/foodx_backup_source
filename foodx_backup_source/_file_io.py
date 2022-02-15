@@ -86,8 +86,9 @@ async def load_backup_definitions(files: PathSet) -> BackupDefinitions:
     data = _merge_file_content(list(results))
 
     definitions: BackupDefinitions = list()
-    for name, definition in data.context.dependencies.items():
-        this_element = ApplicationDefinition(name=name, definition=definition)
+    for name, configuration in data.context.dependencies.items():
+        this_element = ApplicationDefinition(name=name,
+                                             configuration=configuration)
         definitions.append(this_element)
 
     return definitions
