@@ -87,8 +87,9 @@ async def load_backup_definitions(files: PathSet) -> BackupDefinitions:
 
     definitions: BackupDefinitions = list()
     for name, configuration in data.context.dependencies.items():
-        this_element = ApplicationDefinition(name=name,
-                                             configuration=configuration)
+        this_element = ApplicationDefinition(
+            name=name, configuration=configuration
+        )
         definitions.append(this_element)
 
     return definitions

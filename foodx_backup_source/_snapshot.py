@@ -5,12 +5,12 @@
 #  You should have received a copy of the MIT License along with
 #  backup_source. If not, see <https://opensource.org/licenses/MIT>.
 
-import hashlib
 import pathlib
 import tempfile
 
 import git
 
+from ._hash import create_file_hash
 from .schema import ApplicationDefinition
 
 
@@ -24,16 +24,6 @@ def _construct_tarfile_path(
     return file_path
 
 
-def _create_file_hash(file_path: pathlib.Path) -> str:
-    this_hash = hashlib.sha256()
-    file_size = file_path.stat().st_size
-    with file_path.open(mode="rb") as f:
-        while f.tell() != file_size:
-            this_hash.update(f.read(0x40000))
-
-    return this_hash.hexdigest()
-
-
 def _create_tarfile(
     name: str, git_ref: str, tarfile_path: pathlib.Path, this_repo: git.Repo
 ) -> None:
@@ -45,7 +35,7 @@ def _create_tarfile(
             prefix=f"{name}",
         )
 
-    hash_hexdigest = _create_file_hash(tarfile_path)
+    hash_hexdigest = create_file_hash(tarfile_path)
     hash_file = tarfile_path.parent / f"{tarfile_path.name}.sha256"
     with hash_file.open("w") as h:
         h.write(f"{hash_hexdigest}  {tarfile_path.name}")
@@ -53,7 +43,7 @@ def _create_tarfile(
 
 async def do_snapshot(
     definition: ApplicationDefinition, archive_directory: pathlib.Path
-)->pathlib.Path:
+) -> pathlib.Path:
     """
     Take a snapshot of the specified git repository for backup purposes.
 

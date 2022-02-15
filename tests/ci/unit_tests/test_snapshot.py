@@ -67,4 +67,4 @@ class TestDoSnapshot:
 
         result = await do_snapshot(mock_definition, mock_archive)
 
-        assert result == mock_archive/"n1-abc123.tar.gz"
+        assert result == mock_archive / "n1-abc123.tar.gz"
