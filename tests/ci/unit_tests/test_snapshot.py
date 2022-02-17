@@ -65,6 +65,6 @@ class TestDoSnapshot:
             mocker.patch("foodx_backup_source._snapshot._create_tarfile")
             mocker.patch("foodx_backup_source._snapshot.git.Repo.clone_from")
 
-        result = await do_snapshot(mock_definition, mock_archive)
+        result = await do_snapshot(mock_definition, mock_archive, None)
 
         assert result == mock_archive / "n1-abc123.tar.gz"

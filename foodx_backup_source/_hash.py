@@ -30,3 +30,20 @@ def create_file_hash(file_path: pathlib.Path) -> str:
             this_hash.update(f.read(0x40000))
 
     return this_hash.hexdigest()
+
+
+def create_hash_file(reference_file_path: pathlib.Path) -> None:
+    """
+    Record file hash in a file.
+
+    Args:
+        hash_hexdigest: Hash to be recorded.
+        reference_file_path: Path to file that was hashed.
+    """
+    # co-locate the hash file with the reference file.
+    hash_hexdigest = create_file_hash(reference_file_path)
+    hash_file = (
+        reference_file_path.parent / f"{reference_file_path.name}.sha256"
+    )
+    with hash_file.open("w") as h:
+        h.write(f"{hash_hexdigest}  {reference_file_path.name}")

@@ -7,10 +7,12 @@
 
 import pathlib
 import tempfile
+import typing
+from urllib.parse import urlparse
 
 import git
 
-from ._hash import create_file_hash
+from ._hash import create_hash_file
 from .schema import ApplicationDefinition
 
 
@@ -35,14 +37,13 @@ def _create_tarfile(
             prefix=f"{name}",
         )
 
-    hash_hexdigest = create_file_hash(tarfile_path)
-    hash_file = tarfile_path.parent / f"{tarfile_path.name}.sha256"
-    with hash_file.open("w") as h:
-        h.write(f"{hash_hexdigest}  {tarfile_path.name}")
+    create_hash_file(tarfile_path)
 
 
 async def do_snapshot(
-    definition: ApplicationDefinition, archive_directory: pathlib.Path
+    definition: ApplicationDefinition,
+    archive_directory: pathlib.Path,
+    token: typing.Optional[str],
 ) -> pathlib.Path:
     """
     Take a snapshot of the specified git repository for backup purposes.
@@ -54,11 +55,19 @@ async def do_snapshot(
     Returns:
         Path of tar file created
     """
+    this_url = definition.configuration.backup.repo_url
+
+    parsed_url = urlparse(this_url)
+    authorized_url = (
+        f"{parsed_url.scheme}://:{token}@{parsed_url.netloc}"
+        f"{parsed_url.path}"
+    )
+
     with tempfile.TemporaryDirectory() as d:
         working_directory = pathlib.Path(d)
 
         cloned_repo = git.Repo.clone_from(
-            definition.configuration.backup.repo_url,
+            authorized_url,
             working_directory,
         )
 

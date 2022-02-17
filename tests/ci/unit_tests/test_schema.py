@@ -7,20 +7,8 @@
 
 import pydantic
 import pytest
-import ruamel.yaml
 
 from foodx_backup_source.schema import DependencyFile
-
-
-@pytest.fixture()
-def load_yaml_content():
-    def _load(content_text: str) -> dict:
-        yaml = ruamel.yaml.YAML(typ="safe")
-        content = yaml.load(content_text)
-
-        return content
-
-    return _load
 
 
 def test_clean(load_yaml_content):
