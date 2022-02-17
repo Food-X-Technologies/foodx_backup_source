@@ -1,7 +1,7 @@
-start
-=============
+foodx_backup_source
+===================
 
-A project that does something.
+Snapshot git repositories and package up into a verifiable package.
 
 .. contents::
 
@@ -11,9 +11,9 @@ A project that does something.
 Installation
 ------------
 
-The ``start`` package is available from PyPI. Installing into a virtual
+The ``foodx_backup_source`` package is available from PyPI. Installing into a virtual
 environment is recommended.
 
 .. code-block::
 
-   python3 -m venv .venv; .venv/bin/pip install start
+   python3 -m venv .venv; .venv/bin/pip install foodx-backup-source
