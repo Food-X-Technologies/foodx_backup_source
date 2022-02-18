@@ -10,7 +10,7 @@ author-email = "support@foodxtech.com"
 description-file = "README.rst"
 home-page = "https://github.com/Food-X-Technologies/foodx_backup_source/"
 
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 
 requires = [
     "aiofiles ~= 0.8.0",
