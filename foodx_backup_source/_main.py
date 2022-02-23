@@ -10,6 +10,7 @@
 import asyncio
 import datetime
 import io
+import logging
 import pathlib
 import tarfile
 import tempfile
@@ -25,6 +26,9 @@ from ._file_io import (
 )
 from ._hash import create_hash_file
 from ._snapshot import do_snapshot
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 DEFAULT_OUTPUT_PATH = pathlib.Path(".")
 
@@ -51,6 +55,9 @@ def _apply_user_refs(
         names = git_refs.keys()
         for x in data:
             if x.name in names:
+                log.info(
+                    f"applying user git reference, {x.name}, {git_refs[x.name]}"
+                )
                 x.configuration.release.ref = git_refs[x.name]
 
     return data
@@ -78,12 +85,28 @@ async def _launch_packaging(
         now = _isoformat_now()
         tar_path = output_directory / f"{project_name}-{now}.tar.gz"
 
+        log.info(f"saving tar file package, {tar_path}")
         with tarfile.open(tar_path, mode="w:gz") as f:
             for package in snapshot_packages:
                 f.add(str(package), filter=_strip_paths)
                 f.add((str(package) + ".sha256"), filter=_strip_paths)
 
         create_hash_file(tar_path)
+
+
+def _process_gitref_options(
+    git_ref: typing.Optional[typing.List[str]],
+) -> GitReferences:
+    processed_refs: GitReferences = dict()
+    if git_ref:
+        for x in git_ref:
+            tokens = x.split("=")
+            if len(tokens) != 2:
+                raise RuntimeError(f"Malformed git ref option, {x}")
+
+            processed_refs[tokens[0].strip()] = tokens[1].strip()
+
+    return processed_refs
 
 
 @click.command()
@@ -143,15 +166,7 @@ def main(
         if token_file:
             token_value = token_file.read().strip()
 
-        processed_refs: GitReferences = dict()
-        if git_ref:
-            for x in git_ref:
-                tokens = x.split("=")
-                if len(tokens) != 2:
-                    raise RuntimeError(f"Malformed git ref option, {x}")
-
-                processed_refs[tokens[0].strip()] = tokens[1].strip()
-
+        processed_refs = _process_gitref_options(git_ref)
         asyncio.run(
             _launch_packaging(
                 project_name,

@@ -5,6 +5,7 @@
 #  You should have received a copy of the MIT License along with
 #  foodx_backup_source. If not, see <https://opensource.org/licenses/MIT>.
 
+import logging
 import pathlib
 import tempfile
 import typing
@@ -14,6 +15,8 @@ import git
 
 from ._hash import create_hash_file
 from .schema import ApplicationDefinition
+
+log = logging.getLogger(__name__)
 
 
 def _construct_tarfile_path(
@@ -34,7 +37,7 @@ def _create_tarfile(
             f,
             git_ref,
             format="tar.gz",
-            prefix=f"{name}",
+            prefix=f"{name}/",
         )
 
     create_hash_file(tarfile_path)
@@ -66,6 +69,7 @@ async def do_snapshot(
     with tempfile.TemporaryDirectory() as d:
         working_directory = pathlib.Path(d)
 
+        log.info(f"cloning repo, {this_url}")
         cloned_repo = git.Repo.clone_from(
             authorized_url,
             working_directory,

@@ -8,6 +8,7 @@
 """Manage backup definitions file IO."""
 
 import asyncio
+import logging
 import pathlib
 import typing
 
@@ -17,6 +18,8 @@ import ruamel.yaml
 
 from .schema import ApplicationDefinition, DependencyFile
 
+log = logging.getLogger(__name__)
+
 BackupDefinitions = typing.List[ApplicationDefinition]
 PathSet = typing.Set[pathlib.Path]
 
@@ -24,6 +27,7 @@ VALID_SUFFIXES = {".yml", ".yaml"}
 
 
 async def _load_application_dependencies(file: pathlib.Path) -> dict:
+    log.info(f"loading application dependencies from file, {file}")
     yaml_parser = ruamel.yaml.YAML(typ="safe")
     async with aiofiles.open(file, mode="r") as f:
         content = await f.read()
@@ -63,6 +67,7 @@ def discover_backup_definitions(directory_path: pathlib.Path) -> PathSet:
         and (x.suffix in VALID_SUFFIXES)
         and x.name.startswith("dependencies")
     }
+    log.info(f"discovered dependency files, {files}")
 
     return files
 

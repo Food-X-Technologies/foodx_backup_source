@@ -8,7 +8,10 @@
 """Managing generation of hashes of archive files."""
 
 import hashlib
+import logging
 import pathlib
+
+log = logging.getLogger(__name__)
 
 
 def create_file_hash(file_path: pathlib.Path) -> str:
@@ -45,5 +48,8 @@ def create_hash_file(reference_file_path: pathlib.Path) -> None:
     hash_file = (
         reference_file_path.parent / f"{reference_file_path.name}.sha256"
     )
+
+    hash_file_content = f"{hash_hexdigest}  {reference_file_path.name}"
+    log.info(f"creating hash file, {hash_file} ({hash_file_content} )")
     with hash_file.open("w") as h:
-        h.write(f"{hash_hexdigest}  {reference_file_path.name}")
+        h.write(hash_file_content)
