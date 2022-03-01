@@ -16,7 +16,7 @@ from foodx_backup_source._file_io import BackupDefinitions
 from foodx_backup_source._main import (
     DEFAULT_OUTPUT_PATH,
     _launch_packaging,
-    main,
+    click_entry,
 )
 from foodx_backup_source.schema import ApplicationDefinition, DependencyFile
 
@@ -138,7 +138,7 @@ class TestMain:
             "some/path",
         ]
 
-        result = mock_runner.invoke(main, arguments)
+        result = mock_runner.invoke(click_entry, arguments)
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(
@@ -159,7 +159,7 @@ class TestMain:
             "-",
         ]
 
-        result = mock_runner.invoke(main, arguments, input="deadb33f")
+        result = mock_runner.invoke(click_entry, arguments, input="deadb33f")
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(
@@ -180,7 +180,7 @@ class TestMain:
             "-",
         ]
 
-        result = mock_runner.invoke(main, arguments, input=" deadb33f\n")
+        result = mock_runner.invoke(click_entry, arguments, input=" deadb33f\n")
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(
@@ -199,7 +199,7 @@ class TestMain:
             "output/dir",
         ]
 
-        result = mock_runner.invoke(main, arguments)
+        result = mock_runner.invoke(click_entry, arguments)
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(
@@ -218,7 +218,7 @@ class TestMain:
             "r1=abc123",
         ]
 
-        result = mock_runner.invoke(main, arguments)
+        result = mock_runner.invoke(click_entry, arguments)
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(
@@ -241,7 +241,7 @@ class TestMain:
             "r3=123abc",
         ]
 
-        result = mock_runner.invoke(main, arguments)
+        result = mock_runner.invoke(click_entry, arguments)
 
         assert result.exit_code == 0
         mock_gather.assert_awaited_once_with(

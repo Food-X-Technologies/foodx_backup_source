@@ -7,4 +7,6 @@
 
 """A backup utility for FoodX source code."""
 
+# make the main executable path available as an importable function.
+from ._main import main as backup_source  # noqa: F401
 from ._version import __version__  # noqa: F401

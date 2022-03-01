@@ -7,4 +7,4 @@
 
 """Define flit script entrypoints."""
 
-from ._main import main  # noqa: F401
+from ._main import click_entry as main  # noqa: F401

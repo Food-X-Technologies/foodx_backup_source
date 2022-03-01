@@ -69,7 +69,7 @@ async def _launch_packaging(
     output_directory: pathlib.Path,
     token: typing.Optional[str],
     git_refs: GitReferences,
-) -> None:
+) -> typing.List[pathlib.Path]:
     files: PathSet = discover_backup_definitions(project_directory)
     data: BackupDefinitions = await load_backup_definitions(files)
 
@@ -91,7 +91,9 @@ async def _launch_packaging(
                 f.add(str(package), filter=_strip_paths)
                 f.add((str(package) + ".sha256"), filter=_strip_paths)
 
-        create_hash_file(tar_path)
+        hash_path = create_hash_file(tar_path)
+
+        return [tar_path, hash_path]
 
 
 def _process_gitref_options(
@@ -107,6 +109,40 @@ def _process_gitref_options(
             processed_refs[tokens[0].strip()] = tokens[1].strip()
 
     return processed_refs
+
+
+def main(
+    project_name: str,
+    project_directory: pathlib.Path,
+    output_dir: pathlib.Path,
+    git_ref: typing.Optional[typing.List[str]],
+    token_value: typing.Optional[str],
+) -> typing.List[pathlib.Path]:
+    """
+    Package repositories for archiving.
+
+    Args:
+        project_name: Name of project to use as file name prefix.
+        project_directory: Directory
+        output_dir: Directory to output package files.
+        git_ref: User overrides of application git references.
+        token_value:
+
+    Returns:
+        List of files created.
+    """
+    processed_refs = _process_gitref_options(git_ref)
+    created_files = asyncio.run(
+        _launch_packaging(
+            project_name,
+            project_directory,
+            output_dir,
+            token_value,
+            processed_refs,
+        )
+    )
+
+    return created_files
 
 
 @click.command()
@@ -146,7 +182,7 @@ backup.
 """,
     type=click.File(mode="r"),
 )
-def main(
+def click_entry(
     project_name: str,
     project_directory: pathlib.Path,
     output_dir: pathlib.Path,
@@ -166,15 +202,6 @@ def main(
         if token_file:
             token_value = token_file.read().strip()
 
-        processed_refs = _process_gitref_options(git_ref)
-        asyncio.run(
-            _launch_packaging(
-                project_name,
-                project_directory,
-                output_dir,
-                token_value,
-                processed_refs,
-            )
-        )
+        main(project_name, project_directory, output_dir, git_ref, token_value)
     except KeyboardInterrupt:
         click.echo("User aborted execution. Exiting.")

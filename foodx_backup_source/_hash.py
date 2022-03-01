@@ -35,7 +35,7 @@ def create_file_hash(file_path: pathlib.Path) -> str:
     return this_hash.hexdigest()
 
 
-def create_hash_file(reference_file_path: pathlib.Path) -> None:
+def create_hash_file(reference_file_path: pathlib.Path) -> pathlib.Path:
     """
     Record file hash in a file.
 
@@ -53,3 +53,5 @@ def create_hash_file(reference_file_path: pathlib.Path) -> None:
     log.info(f"creating hash file, {hash_file} ({hash_file_content} )")
     with hash_file.open("w") as h:
         h.write(hash_file_content)
+
+    return hash_file
