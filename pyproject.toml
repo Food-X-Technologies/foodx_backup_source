@@ -4,27 +4,44 @@ requires = ["flit_core >=2,<3"]
 
 
 [tool.flit.metadata]
-author = "My Name"
-author-email = "someone@somewhere.com"
+module = "foodx_backup_source"
+author = "FoodX Technologies"
+author-email = "support@foodxtech.com"
 description-file = "README.rst"
-home-page = "https://gitlab.com/my_project/"
-module = "start"
+home-page = "https://github.com/Food-X-Technologies/foodx_backup_source/"
 
+requires-python = ">=3.8"
+
+requires = [
+    "aiofiles ~= 0.8.0",
+    "aiohttp ~= 3.8.1",
+    "click ~= 8.0.3",
+    "deepmerge ~= 1.0.1",
+    "gitpython ~= 3.1.24",
+    "pydantic ~= 1.8.2",
+    "ruamel.yaml ~= 0.17.17",
+]
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "build_harness == 0.1.1",
-"pre_commit == 2.13.0",
+    "build_harness ~= 0.2.1",
+    "pre_commit ~= 2.13.0",
+    "types-aiofiles",
 ]
 doc = [
-    "sphinx == 4.0.2",
-    "sphinx_rtd_theme == 0.5.2",
+    "sphinx ~= 4.0.2",
+    "sphinx_rtd_theme ~= 0.5.2",
 ]
 test = [
-    "pytest == 6.2.4",
-    "pytest-cov == 2.12.1",
-    "pytest-mock == 3.6.1",
+    "pytest ~= 6.2.4",
+    "pytest-asyncio >=0.15.1, <1.0",
+    "pytest-cov ~= 2.12.1",
+    "pytest-mock ~= 3.6.1",
 ]
+
+
+[tool.flit.scripts]
+backup-source = "foodx_backup_source.entrypoint:main"
 
 
 [tool.black]
@@ -44,8 +61,8 @@ profile = "black"
 # https://github.com/pytest-dev/pytest-cov/issues/243
 branch = true
 concurrency = ["multiprocessing"]
-omit = ["start/.venv/*"]
-source = ["start"]
+omit = [".venv/*"]
+source = ["foodx_backup_source"]
 
 
 [tool.coverage.report]
@@ -56,6 +73,10 @@ exclude_lines = [
     "ABCmeta",
     "abstractmethod",
     "warnings.warn",
+]
+omit = [
+    # very little test utility in this file and "0%" test coverage biases coverage results, so exclude it.
+    "*/entrypoint.py"
 ]
 precision = 0
 show_missing = true

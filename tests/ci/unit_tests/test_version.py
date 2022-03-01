@@ -9,13 +9,16 @@ import pathlib
 
 import pytest
 
-from start._version import DEFAULT_RELEASE_ID, acquire_version
+from foodx_backup_source._version import DEFAULT_RELEASE_ID, acquire_version
 
 
 def test_clean(mocker):
     mock_here = mocker.create_autospec(pathlib.Path)
 
-    mocker.patch("start._version.pathlib.Path.absolute", return_value=mock_here)
+    mocker.patch(
+        "foodx_backup_source._version.pathlib.Path.absolute",
+        return_value=mock_here,
+    )
     mock_here.is_file.return_value = True
 
     mock_handle = mock_here.open.return_value.__enter__.return_value
@@ -29,7 +32,10 @@ def test_clean(mocker):
 def test_missing_file(mocker):
     mock_here = mocker.create_autospec(pathlib.Path)
 
-    mocker.patch("start._version.pathlib.Path.absolute", return_value=mock_here)
+    mocker.patch(
+        "foodx_backup_source._version.pathlib.Path.absolute",
+        return_value=mock_here,
+    )
     mock_here.is_file.return_value = False
 
     result = acquire_version()
@@ -40,7 +46,10 @@ def test_missing_file(mocker):
 def test_empty_file(mocker):
     mock_here = mocker.create_autospec(pathlib.Path)
 
-    mocker.patch("start._version.pathlib.Path.absolute", return_value=mock_here)
+    mocker.patch(
+        "foodx_backup_source._version.pathlib.Path.absolute",
+        return_value=mock_here,
+    )
     mock_here.is_file.return_value = True
 
     mock_handle = mock_here.open.return_value.__enter__.return_value
