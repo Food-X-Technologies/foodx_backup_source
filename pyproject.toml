@@ -13,30 +13,30 @@ home-page = "https://github.com/Food-X-Technologies/foodx_backup_source/"
 requires-python = ">=3.8"
 
 requires = [
-    "aiofiles ~= 0.8.0",
-    "aiohttp ~= 3.8.1",
-    "click ~= 8.0.3",
-    "deepmerge ~= 1.0.1",
-    "gitpython ~= 3.1.24",
-    "pydantic ~= 1.8.2",
-    "ruamel.yaml ~= 0.17.17",
+    "aiofiles ~=0.8.0",
+    "aiohttp ~=3.8.1",
+    "click ~=8.1.2",
+    "deepmerge ~=1.0.1",
+    "gitpython ~=3.1.27",
+    "pydantic ~=1.9.0",
+    "ruamel.yaml ~=0.17.20",
 ]
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "build_harness ~= 0.2.1",
-    "pre_commit ~= 2.13.0",
-    "types-aiofiles",
+    "build_harness ~=1.0.1",
+    "pre_commit ~=2.17.0",
+    "types-aiofiles ~=0.8.3",
 ]
 doc = [
-    "sphinx ~= 4.0.2",
-    "sphinx_rtd_theme ~= 0.5.2",
+    "sphinx ~=4.5.0",
+    "sphinx_rtd_theme ~=1.0",
 ]
 test = [
-    "pytest ~= 6.2.4",
-    "pytest-asyncio >=0.15.1, <1.0",
-    "pytest-cov ~= 2.12.1",
-    "pytest-mock ~= 3.6.1",
+    "pytest ~=7.1.1",
+    "pytest-asyncio ~=0.18.3",
+    "pytest-cov ~=3.0",
+    "pytest-mock ~=3.7.0",
 ]
 
 
